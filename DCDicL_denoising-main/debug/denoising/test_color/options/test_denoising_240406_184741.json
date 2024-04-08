@@ -1,0 +1,74 @@
+{
+  "task": "test_color",
+  "gpu_ids": [
+    0
+  ],
+  "path": {
+    "root": "debug/denoising",
+    "pretrained_netG": "./release/denoising/dcdicl_nb4_stage4/models/",
+    "task": "debug/denoising\\test_color",
+    "log": "debug/denoising\\test_color",
+    "options": "debug/denoising\\test_color\\options",
+    "models": "debug/denoising\\test_color\\models",
+    "images": "debug/denoising\\test_color\\images"
+  },
+  "data": {
+    "type": "denoising",
+    "n_channels": 1,
+    "train": {
+      "type": "denoising",
+      "phase": "train",
+      "scale": 1,
+      "n_channels": 1
+    },
+    "test": {
+      "sigma": [
+        15,
+        25,
+        50
+      ],
+      "dataroot_H": "./data/denoising/test",
+      "type": "denoising",
+      "phase": "test",
+      "scale": 1,
+      "n_channels": 1
+    },
+    "scale": 1
+  },
+  "netG": {
+    "d_size": 5,
+    "fix_d": false,
+    "n_iter": 4,
+    "in_nc": 1,
+    "nc_x": [
+      64,
+      128,
+      256,
+      512
+    ],
+    "nb": 4,
+    "type": "denoising",
+    "out_nc": 1,
+    "scale": 1
+  },
+  "train": {
+    "reload_broadcast": false,
+    "G_optimizer_lr": 0.0001,
+    "G_scheduler_milestones": [
+      200000,
+      400000,
+      600000,
+      800000
+    ],
+    "G_scheduler_gamma": 0.5,
+    "checkpoint_test": 5000,
+    "checkpoint_savemodel": 5000,
+    "checkpoint_log": 100,
+    "checkpoint_saveimage": 5000
+  },
+  "test": {
+    "visualize": true
+  },
+  "opt_path": "options/test_denoising.json",
+  "is_train": true
+}
