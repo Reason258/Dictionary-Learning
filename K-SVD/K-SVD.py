@@ -6,6 +6,7 @@ import scipy as sp
 from sklearn.decomposition import MiniBatchDictionaryLearning
 from sklearn.feature_extraction.image import extract_patches_2d
 from sklearn.feature_extraction.image import reconstruct_from_patches_2d
+from skimage.metrics import structural_similarity as ssim
  
 from keras.preprocessing.image import load_img, save_img
 from keras.preprocessing.image import img_to_array
@@ -22,10 +23,10 @@ def psnr(img1, img2):
 std = 15
 
 # load an image from file
-image = load_img('296059.jpg')
+image = Image.open('296059.jpg')
 
 # convert the image pixels to a numpy array
-image = img_to_array(image)
+image = np.array(image)
 image = image[:,:,0]
 
  
@@ -56,7 +57,7 @@ data /= np.std(data, axis=0)
 
 # Learn the dictionary from reference patches
 print('Learning the dictionary...')
-dico = MiniBatchDictionaryLearning(n_components=144, alpha=1, n_iter=500)
+dico = MiniBatchDictionaryLearning(n_components=144, alpha=1, n_iter=1000)
 V = dico.fit(data).components_
 print(V.shape)
 
@@ -85,10 +86,10 @@ def test(filename):
 
     print('Test the dictionary on a new image')
     # load an image from file
-    image = load_img(filename)
+    image = Image.open(filename)
 
     # convert the image pixels to a numpy array
-    image = img_to_array(image)
+    image = np.array(image)
     image = image[:,:,0]
 
     
@@ -96,15 +97,16 @@ def test(filename):
     image = image.astype('float32')
     image/=255
     plt.imshow(image, cmap='gray')
-    plt.show()
+    # plt.show()
 
     noise = np.random.normal(loc=0, scale=std, size=image.shape)/255
     x_test_noisy1 = image + noise
-    psnr1 = psnr(image, x_test_noisy1)
-    print('PSNR1: ',psnr1)
+    
     x_test_noisy1 = np.clip(x_test_noisy1, 0., 1.)
+    psnr1 = psnr(image, x_test_noisy1)
+    ssim1 = ssim(image, x_test_noisy1)
     plt.imshow(x_test_noisy1, cmap='Greys_r')
-    plt.show()
+    # plt.show()
 
     # Extract noisy patches and reconstruct them using the dictionary
     print('Extracting patches from new image... ')
@@ -125,9 +127,14 @@ def test(filename):
     reconstructions_frm_noise = reconstruct_from_patches_2d(patches, image.shape)
 
     psnr2 = psnr(image, reconstructions_frm_noise)
-    print('PSNR2: ',psnr2)
+    ssim2 = ssim(image, reconstructions_frm_noise)
+
+    print('{} PSNR_noise: '.format(filename), psnr1)
+    print('{} PSNR_denoise: '.format(filename), psnr2)
+    print('{} SSIM_noise: '.format(filename), ssim1*100)
+    print('{} SSIM_denoise: '.format(filename), ssim2*100)
     plt.imshow(reconstructions_frm_noise, cmap='Greys_r')
-    plt.show()
+    # plt.show()
 
 test('296059.jpg')
 test('100080.jpg')
