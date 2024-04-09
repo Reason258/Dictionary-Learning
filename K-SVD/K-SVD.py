@@ -7,9 +7,7 @@ from sklearn.decomposition import MiniBatchDictionaryLearning
 from sklearn.feature_extraction.image import extract_patches_2d
 from sklearn.feature_extraction.image import reconstruct_from_patches_2d
 from skimage.metrics import structural_similarity as ssim
- 
-from keras.preprocessing.image import load_img, save_img
-from keras.preprocessing.image import img_to_array
+
 import math
 
 def psnr(img1, img2):
